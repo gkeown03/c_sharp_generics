@@ -4,8 +4,12 @@ using generics_classes.Entities;
 
 namespace generics_classes.Repositories
 {
-    public class GenericRepository<T> where T: class, IEntity, new()
+    public class ListRepository<T>: IRepository<T> where T: class, IEntity
     {
+        public IEnumerable<T> GetAll()
+        {
+            return _items.ToList();
+        }
 
         public T GetById(int id)
         {
@@ -19,9 +23,7 @@ namespace generics_classes.Repositories
         }
         public void Save()
         {
-            foreach (var item in _items) {
-                Console.WriteLine(item);
-            }
+            // everything is saved already in the List<T>
         }
         public void Remove(T item)
         {
