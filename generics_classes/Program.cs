@@ -9,7 +9,8 @@ namespace generics_classes
         static void Main(string[] args)
         {
             // ItemAdded<Employee> itemAdded = new ItemAdded<Employee>(EmployeeAdded);
-            var employeeRepository = new SqlRepository<Employee>(new StorageAppDbContext(), EmployeeAdded);
+            var employeeRepository = new SqlRepository<Employee>(new StorageAppDbContext());
+            employeeRepository.ItemAdded += EmployeeRepository_ItemAdded;
 
             AddEmployees(employeeRepository);
             AddManagers(employeeRepository);
@@ -23,7 +24,7 @@ namespace generics_classes
             Console.ReadLine();
         }
 
-        private static void EmployeeAdded(Employee employee)
+        private static void EmployeeRepository_ItemAdded(object? sender, Employee employee)
         {
             Console.WriteLine($"Employee added => {employee.FirstName}");
         }
