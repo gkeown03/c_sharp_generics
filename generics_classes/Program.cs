@@ -8,7 +8,9 @@ namespace generics_classes
     class Program {
         static void Main(string[] args)
         {
-            var employeeRepository = new SqlRepository<Employee>(new StorageAppDbContext());
+            // ItemAdded<Employee> itemAdded = new ItemAdded<Employee>(EmployeeAdded);
+            var employeeRepository = new SqlRepository<Employee>(new StorageAppDbContext(), EmployeeAdded);
+
             AddEmployees(employeeRepository);
             AddManagers(employeeRepository);
             GetEmployeeById(employeeRepository);
@@ -21,9 +23,22 @@ namespace generics_classes
             Console.ReadLine();
         }
 
+        private static void EmployeeAdded(Employee employee)
+        {
+            Console.WriteLine($"Employee added => {employee.FirstName}");
+        }
+
         private static void AddManagers(IWriteRepository<Manager> managerRepository)
         {
-            managerRepository.Add(new Manager {FirstName = "Sara"});
+            var saraManager = new Manager { FirstName = "Sara" };
+            var saraManagerCopy = saraManager.Copy();
+            managerRepository.Add(saraManager);
+
+            if (saraManagerCopy is not null) {
+                saraManagerCopy.FirstName += "_Copy";
+                managerRepository.Add(saraManagerCopy);
+            }
+
             managerRepository.Add(new Manager {FirstName = "Henry"});
             managerRepository.Save();
         }
@@ -44,17 +59,23 @@ namespace generics_classes
 
         private static void AddEmployees(IRepository<Employee> employeeRepository)
         {
-            employeeRepository.Add(new Employee { FirstName = "Julia" });
-            employeeRepository.Add(new Employee { FirstName = "Anna" });
-            employeeRepository.Add(new Employee { FirstName = "Thomas" });
-            employeeRepository.Save();
+            var employees = new[]
+            {
+                new Employee { FirstName = "Julia" },
+                new Employee { FirstName = "Anna" },
+                new Employee { FirstName = "Thomas" }
+            };
+            employeeRepository.AddBatch(employees);
         }
 
         private static void AddOrganisations(IRepository<Organisation> organisationRepo)
         {
-            organisationRepo.Add(new Organisation { Name = "Pluralsight" });
-            organisationRepo.Add(new Organisation { Name = "TestOrg" });
-            organisationRepo.Save();
+            var organisations = new[]
+            {
+                new Organisation { Name = "Pluralsight" },
+                new Organisation { Name = "TestOrg" }
+            };
+            organisationRepo.AddBatch(organisations);
         }
     }
 }

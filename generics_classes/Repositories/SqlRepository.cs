@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace generics_classes.Repositories
 {
+    // contravariance example for more specific manager class
+    public delegate void ItemAdded<in T>(T item);
+    
     public class SqlRepository<T> : IRepository<T> where T : class, IEntity
     {
         public IEnumerable<T> GetAll()
@@ -11,9 +14,11 @@ namespace generics_classes.Repositories
         }
         private readonly DbContext _dbContext;
         private DbSet<T> _dbSet;
+        private readonly ItemAdded<T> _itemAddedCallback;
 
-        public SqlRepository(DbContext dbContext)
+        public SqlRepository(DbContext dbContext, ItemAdded<T>? itemAddedCallback = null)
         {
+            _itemAddedCallback = itemAddedCallback;
             _dbContext = dbContext;
             _dbSet = _dbContext.Set<T>();
 
@@ -26,6 +31,7 @@ namespace generics_classes.Repositories
         public void Add(T item)
         {
             _dbSet.Add(item);
+            _itemAddedCallback?.Invoke(item);
         }
         public void Save()
         {
